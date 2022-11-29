@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/src/javascript/videoplayer.js"></script>
+    <title>Document</title>
+</head>
+
+<body>
+    Original: <br>
+    <video id="my-video" controls="true" width="480" height="270" crossorigin="anonymous">
+        <source src="https://jplayer.org/video/m4v/Big_Buck_Bunny_Trailer.m4v" type="video/mp4" />
+    </video>
+    <br>
+    Processed: <br>
+    <canvas id="my-canvas" width="480" height="270"></canvas>
+
+    <script>
+        processor.doLoad();
+
+        // Setup all nodes
+        const context = new AudioContext();
+        const audioSource = context.createMediaElementSource(document.getElementById("my-video"));
+
+        document.querySelector('video').addEventListener('play', function () {
+            context.resume();
+        });
+
+        var bufferSize = 4096;
+        var effect = (function () {
+            var node = context.createScriptProcessor(bufferSize, 1, 1);
+            node.bits = 4; // between 1 and 16
+            node.normfreq = 0.2; // between 0.0 and 1.0
+            var step = Math.pow(1 / 2, node.bits);
+            var phaser = 0;
+            var last = 0;
+            node.onaudioprocess = function (e) {
+                var input = e.inputBuffer.getChannelData(0);
+                var output = e.outputBuffer.getChannelData(0);
+                for (var i = 0; i < bufferSize; i++) {
+                    phaser += node.normfreq;
+                    if (phaser >= 1.0) {
+                        phaser -= 1.0;
+                        last = step * Math.floor(input[i] / step + 0.5);
+                    }
+                    output[i] = last;
+                }
+            };
+            return node;
+        })();
+
+        // create filter
+        var filter = context.createBiquadFilter();
+        effect.connect(filter);
+        filter.connect(context.destination);
+
+        // Configure filter
+        filter.type = "lowshelf";
+        filter.frequency.value = 200;
+        filter.gain.value = 20;
+
+        audioSource.connect(effect);
+    </script>
+</body>
+
+</html>
