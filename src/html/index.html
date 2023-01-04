@@ -30,7 +30,7 @@
         });
 
         var bufferSize = 4096;
-        var effect = (function () {
+        var bitcrush = (function () {
             var node = context.createScriptProcessor(bufferSize, 1, 1);
             node.bits = 4; // between 1 and 16
             node.normfreq = 0.2; // between 0.0 and 1.0
@@ -54,15 +54,17 @@
 
         // create filter
         var filter = context.createBiquadFilter();
-        effect.connect(filter);
-        filter.connect(context.destination);
 
         // Configure filter
         filter.type = "lowshelf";
         filter.frequency.value = 200;
         filter.gain.value = 20;
 
-        audioSource.connect(effect);
+        // chain effects
+        bitcrush.connect(filter);
+        filter.connect(context.destination);
+
+        audioSource.connect(bitcrush);
     </script>
 </body>
 
