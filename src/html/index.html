@@ -29,10 +29,11 @@
             context.resume();
         });
 
+        // bitcrush
         var bufferSize = 4096;
         var bitcrush = (function () {
             var node = context.createScriptProcessor(bufferSize, 1, 1);
-            node.bits = 4; // between 1 and 16
+            node.bits = 7; // between 1 and 16
             node.normfreq = 0.2; // between 0.0 and 1.0
             var step = Math.pow(1 / 2, node.bits);
             var phaser = 0;
@@ -60,11 +61,17 @@
         filter.frequency.value = 200;
         filter.gain.value = 20;
 
+        // gain
+        var gain = context.createGain();
+        gain.gain.value = 1;
+
         // chain effects
+        audioSource.connect(gain);
+        gain.connect(bitcrush);
         bitcrush.connect(filter);
         filter.connect(context.destination);
 
-        audioSource.connect(bitcrush);
+        //audioSource.connect(bitcrush);
     </script>
 </body>
 
