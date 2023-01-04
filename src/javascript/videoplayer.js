@@ -1,5 +1,3 @@
-console.log("working 1");
-
 const processor = {
     timerCallback() {
         if (this.video.paused || this.video.ended) {
@@ -34,6 +32,7 @@ const processor = {
         var sv = 1; // 0 | 10
         var sharpen_factor = 5; // 0 | 10
         var hue = 270; // 0 | 360
+        var jpeg_quality = 30; // 0 | 100
 
         // constant to determine luminance of red. Similarly, for green and blue
         var luR = 0.3086;
